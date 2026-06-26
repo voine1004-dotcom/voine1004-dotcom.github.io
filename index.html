@@ -1,0 +1,449 @@
+﻿<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예비군/민방위 훈련 현황 대시보드</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- SheetJS (xlsx.full.min.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="app-layout-container">
+        <!-- Left Navigation Sidebar -->
+        <aside class="left-sidebar">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-shield-halved"></i>
+                <div>
+                    <h2>훈련 관리 대시보드</h2>
+                    <p>Reserve Force & Civil Defense</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" data-target="view-full-2026">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    <span>26년 전체일정</span>
+                </button>
+                <button class="nav-btn" data-target="view-monthly">
+                    <i class="fa-solid fa-calendar-week"></i>
+                    <span>월별 전체일정</span>
+                </button>
+                <button class="nav-btn" data-target="view-8weeks">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>8주간 주요업무</span>
+                </button>
+            </nav>
+            
+            <div class="sidebar-status-card">
+                <div class="status-dot-wrapper">
+                    <span class="status-dot online"></span>
+                    <span class="status-text">엑셀 파일 연동 상태</span>
+                </div>
+                <div class="status-desc" id="db-load-status">데이터 로딩 중...</div>
+            </div>
+        </aside>
+
+        <!-- Right Main Panel -->
+        <main class="main-content-panel">
+            
+            <!-- VIEW 1: 26년 전체일정 -->
+            <div id="view-full-2026" class="tab-view active">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h1>2026년 예비군·민방위 전체일정</h1>
+                        <span class="divider">|</span>
+                        <span class="subtitle">연간 교육 및 훈련 일정 가이드</span>
+                    </div>
+                </header>
+
+                <!-- Personnel Stats Card -->
+                <section class="top-widgets full-width-stats">
+                    <div class="widget-card stats-widget">
+                        <div class="widget-title">사업장별 인원 현황</div>
+                        <div class="stats-row">
+                            <div class="stat-item onyx-reserve">
+                                <div class="stat-label">온양 예비군</div>
+                                <div class="stat-content">
+                                    <span class="status-icon icon-onyx-reserve"><i class="fa-solid fa-helmet-safety"></i></span>
+                                    <span class="stat-count" id="count-onyx-reserve">0</span><span class="stat-unit">명</span>
+                                </div>
+                            </div>
+                            <div class="stat-item onyx-civil">
+                                <div class="stat-label">온양 민방위</div>
+                                <div class="stat-content">
+                                    <span class="status-icon icon-onyx-civil"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                    <span class="stat-count" id="count-onyx-civil">0</span><span class="stat-unit">명</span>
+                                </div>
+                            </div>
+                            <div class="stat-item cheonan-reserve">
+                                <div class="stat-label">천안 예비군</div>
+                                <div class="stat-content">
+                                    <span class="status-icon icon-cheonan-reserve"><i class="fa-solid fa-helmet-safety"></i></span>
+                                    <span class="stat-count" id="count-cheonan-reserve">0</span><span class="stat-unit">명</span>
+                                </div>
+                            </div>
+                            <div class="stat-item cheonan-civil">
+                                <div class="stat-label">천안 민방위</div>
+                                <div class="stat-content">
+                                    <span class="status-icon icon-cheonan-civil"><i class="fa-solid fa-circle-exclamation"></i></span>
+                                    <span class="stat-count" id="count-cheonan-civil">0</span><span class="stat-unit">명</span>
+                                </div>
+                            </div>
+                            <div class="stat-item total-participants">
+                                <div class="stat-label">총 참여 인원</div>
+                                <div class="stat-content">
+                                    <span class="stat-count" id="count-total">0</span><span class="stat-unit">명</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="view-body">
+                    <div class="grid-two-columns">
+                        <!-- Onyx Site Card -->
+                        <div class="site-schedule-card border-onyx">
+                            <div class="site-card-header bg-onyx">
+                                <h2>
+                                    <span class="site-badge onyx"><i class="fa-solid fa-industry"></i> 온양 사업장</span>
+                                    <span>2026 훈련 일정</span>
+                                </h2>
+                            </div>
+                            <div class="site-card-body">
+                                <!-- Reserve Forces -->
+                                <div class="schedule-section">
+                                    <h3 class="color-green"><i class="fa-solid fa-helmet-safety"></i> 예비군 훈련</h3>
+                                    <div class="schedule-table-wrapper">
+                                        <table class="schedule-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>훈련 유형</th>
+                                                    <th>대상 연차</th>
+                                                    <th>예정 시기</th>
+                                                    <th>교육 방식</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="bold">동원훈련</td>
+                                                    <td>1 ~ 4년차</td>
+                                                    <td class="bold text-orange">3월 / 9월</td>
+                                                    <td>2박3일 입소훈련</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">기본훈련</td>
+                                                    <td>5 ~ 6년차</td>
+                                                    <td class="bold text-orange">4월 / 10월</td>
+                                                    <td>당일형 실습훈련 (8시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">작계훈련</td>
+                                                    <td>5 ~ 6년차</td>
+                                                    <td class="bold text-orange">상반기 5월 / 하반기 11월</td>
+                                                    <td>전·후반기 구분 (각 6시간)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Civil Defense -->
+                                <div class="schedule-section">
+                                    <h3 class="color-yellow"><i class="fa-solid fa-triangle-exclamation"></i> 민방위 교육</h3>
+                                    <div class="schedule-table-wrapper">
+                                        <table class="schedule-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>교육 유형</th>
+                                                    <th>대상 연차</th>
+                                                    <th>예정 시기</th>
+                                                    <th>교육 방식</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="bold">집합교육</td>
+                                                    <td>1 ~ 2년차</td>
+                                                    <td class="bold text-orange">4월 / 10월</td>
+                                                    <td>대면 집합교육 (4시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">사이버교육</td>
+                                                    <td>3 ~ 4년차</td>
+                                                    <td class="bold text-orange">4월 ~ 11월 (상시)</td>
+                                                    <td>스마트 민방위 (2시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">사이버교육</td>
+                                                    <td>5년차 이상</td>
+                                                    <td class="bold text-orange">4월 ~ 11월 (상시)</td>
+                                                    <td>스마트 민방위 (1시간)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cheonan Site Card -->
+                        <div class="site-schedule-card border-cheonan">
+                            <div class="site-card-header bg-cheonan">
+                                <h2>
+                                    <span class="site-badge cheonan"><i class="fa-solid fa-industry"></i> 천안 사업장</span>
+                                    <span>2026 훈련 일정</span>
+                                </h2>
+                            </div>
+                            <div class="site-card-body">
+                                <!-- Reserve Forces -->
+                                <div class="schedule-section">
+                                    <h3 class="color-blue"><i class="fa-solid fa-helmet-safety"></i> 예비군 훈련</h3>
+                                    <div class="schedule-table-wrapper">
+                                        <table class="schedule-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>훈련 유형</th>
+                                                    <th>대상 연차</th>
+                                                    <th>예정 시기</th>
+                                                    <th>교육 방식</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="bold">동원훈련</td>
+                                                    <td>1 ~ 4년차</td>
+                                                    <td class="bold text-orange">3월 / 9월</td>
+                                                    <td>2박3일 입소훈련</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">기본훈련</td>
+                                                    <td>5 ~ 6년차</td>
+                                                    <td class="bold text-orange">4월 / 10월</td>
+                                                    <td>당일형 실습훈련 (8시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">작계훈련</td>
+                                                    <td>5 ~ 6년차</td>
+                                                    <td class="bold text-orange">상반기 5월 / 하반기 11월</td>
+                                                    <td>전·후반기 구분 (각 6시간)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- Civil Defense -->
+                                <div class="schedule-section">
+                                    <h3 class="color-purple"><i class="fa-solid fa-circle-exclamation"></i> 민방위 교육</h3>
+                                    <div class="schedule-table-wrapper">
+                                        <table class="schedule-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>교육 유형</th>
+                                                    <th>대상 연차</th>
+                                                    <th>예정 시기</th>
+                                                    <th>교육 방식</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="bold">집합교육</td>
+                                                    <td>1 ~ 2년차</td>
+                                                    <td class="bold text-orange">4월 / 10월</td>
+                                                    <td>대면 집합교육 (4시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">사이버교육</td>
+                                                    <td>3 ~ 4년차</td>
+                                                    <td class="bold text-orange">4월 ~ 11월 (상시)</td>
+                                                    <td>스마트 민방위 (2시간)</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="bold">사이버교육</td>
+                                                    <td>5년차 이상</td>
+                                                    <td class="bold text-orange">4월 ~ 11월 (상시)</td>
+                                                    <td>스마트 민방위 (1시간)</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: 월별 전체일정 -->
+            <div id="view-monthly" class="tab-view">
+                <!-- Main Header with Month Dropdown Selector -->
+                <header class="main-header">
+                    <div class="header-left">
+                        <h1>예비군·민방위 월별 전체일정</h1>
+                        <span class="divider">|</span>
+                        <div class="month-selector-container">
+                            <select id="calendar-year-select" class="premium-select">
+                                <option value="2026" selected>2026년</option>
+                                <option value="2025">2025년</option>
+                            </select>
+                            <select id="calendar-month-select" class="premium-select">
+                                <option value="0">1월</option>
+                                <option value="1">2월</option>
+                                <option value="2">3월</option>
+                                <option value="3">4월</option>
+                                <option value="4">5월</option>
+                                <option value="5">6월</option>
+                                <option value="6" selected>7월</option>
+                                <option value="7">8월</option>
+                                <option value="8">9월</option>
+                                <option value="9">10월</option>
+                                <option value="10">11월</option>
+                                <option value="11">12월</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <span class="report-date">보고일자 : 2025.05.23</span>
+                    </div>
+                </header>
+
+                <!-- Top Legends & Types Row -->
+                <section class="top-widgets-monthly-legends">
+                    <!-- Legend (Business / Target) -->
+                    <div class="widget-card legend-widget">
+                        <div class="widget-title">범례 (사업장 / 대상)</div>
+                        <div class="legend-grid horizontal-layout">
+                            <div class="legend-item">
+                                <span class="status-icon icon-onyx-reserve enlarged"><i class="fa-solid fa-helmet-safety"></i></span>
+                                <span class="legend-name">온양<br>예비군</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="status-icon icon-onyx-civil enlarged"><i class="fa-solid fa-triangle-exclamation"></i></span>
+                                <span class="legend-name">온양<br>민방위</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="status-icon icon-cheonan-reserve enlarged"><i class="fa-solid fa-helmet-safety"></i></span>
+                                <span class="legend-name">천안<br>예비군</span>
+                            </div>
+                            <div class="legend-item">
+                                <span class="status-icon icon-cheonan-civil enlarged"><i class="fa-solid fa-circle-exclamation"></i></span>
+                                <span class="legend-name">천안<br>민방위</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Training Type Icons -->
+                    <div class="widget-card type-widget">
+                        <div class="widget-title">훈련유형</div>
+                        <div class="type-grid horizontal-layout">
+                            <div class="type-item">
+                                <i class="fa-solid fa-crosshairs type-icon-symbol enlarged"></i>
+                                <span class="type-name">동원<br>훈련</span>
+                            </div>
+                            <div class="type-item">
+                                <i class="fa-solid fa-desktop type-icon-symbol enlarged"></i>
+                                <span class="type-name">사이버<br>훈련</span>
+                            </div>
+                            <div class="type-item">
+                                <i class="fa-solid fa-building type-icon-symbol enlarged"></i>
+                                <span class="type-name">집합<br>교육</span>
+                            </div>
+                            <div class="type-item">
+                                <i class="fa-solid fa-person-running type-icon-symbol enlarged"></i>
+                                <span class="type-name">실기<br>실습</span>
+                            </div>
+                            <div class="type-item">
+                                <i class="fa-solid fa-bullhorn type-icon-symbol enlarged"></i>
+                                <span class="type-name">교육<br>강의</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Full Width Calendar Layout -->
+                <div class="main-layout full-width-layout">
+                    <section class="calendar-section">
+                        <div class="calendar-header">
+                            <div class="calendar-header-cell sun">일</div>
+                            <div class="calendar-header-cell">월</div>
+                            <div class="calendar-header-cell">화</div>
+                            <div class="calendar-header-cell">수</div>
+                            <div class="calendar-header-cell">목</div>
+                            <div class="calendar-header-cell">금</div>
+                            <div class="calendar-header-cell sat">토</div>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid">
+                            <!-- Calendar days will be generated dynamically by JS -->
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Footer Section -->
+                <footer class="main-footer">
+                    <div class="footer-left">
+                        <span class="notes-title">참고사항</span>
+                        <ul class="notes-list">
+                            <li>상기 일정은 계획 기준으로 변경될 수 있으며, 변경 시 즉시 공유 예정입니다.</li>
+                            <li>훈련 인원은 중복 참여 제외 기준(1인 1회)으로 집계하였습니다.</li>
+                            <li>특이사항 발생 시 코멘트란에 별도 표기하였습니다.</li>
+                        </ul>
+                    </div>
+                    <div class="footer-right">
+                        <div class="contact-box">
+                            <div><span class="contact-label">담당자:</span> <span class="contact-val">안전관리팀 홍길동 대리</span></div>
+                            <div><span class="contact-label">연락처:</span> <span class="contact-val">041-000-0000</span></div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+
+            <!-- VIEW 3: 8주간 주요업무 -->
+            <div id="view-8weeks" class="tab-view">
+                <header class="view-header">
+                    <div class="header-left">
+                        <h1>예비군.민방위 8주간 주요업무 계획</h1>
+                        <span class="divider">|</span>
+                        <span class="subtitle">주차별 사업장 운영 로드맵 및 관련 업무 계획</span>
+                    </div>
+                </header>
+
+                <div class="view-body">
+                    <div class="task-board-layout">
+                        <div class="task-board-toolbar">
+                            <div>
+                                <strong>금주업무 + 일자별 업무</strong>
+                                <span>업무 제목을 클릭하면 세부항목과 체크리스트가 열립니다.</span>
+                            </div>
+                            <button id="btn-add-todo" class="btn-add-todo">
+                                <i class="fa-solid fa-plus"></i> 업무 추가
+                            </button>
+                        </div>
+                        <div class="timeline-container" id="weeks-timeline-container">
+                            <!-- Generated Dynamically via JS with icons -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Custom Tooltip Overlay -->
+    <div class="custom-tooltip" id="tooltip">
+        <div class="tooltip-header" id="tooltip-title">대원 명단</div>
+        <div class="tooltip-body" id="tooltip-body">
+            <!-- Dynamic names will go here -->
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
+
