@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예비군/민방위 훈련 안내</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS (xlsx.full.min.js) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <!-- Decorative background glows -->
+    <div class="bg-glow-1"></div>
+    <div class="bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Section -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="brand-name">
+                    <h2>예비군/민방위 훈련 안내</h2>
+                    <p>Reserve Force & Civil Defense</p>
+                </div>
+            </div>
+
+            <!-- Excel Connection Status Indicator -->
+            <div class="status-card">
+                <div class="status-header">
+                    <div class="status-indicator loading" id="db-status-dot"></div>
+                    <span class="status-text" id="db-status-text">명부 로딩 중...</span>
+                </div>
+                <p class="status-desc">대원현황.xlsx 파일 연동 상태</p>
+            </div>
+
+            <!-- Stats Panel -->
+            <div class="sidebar-section" id="stats-section">
+                <h3><i class="fa-solid fa-chart-simple"></i> 부서 명부 통계</h3>
+                <div class="stats-panel-wrapper">
+                    <div class="stats-panel">
+                        <div class="stat-item">
+                            <span class="stat-label">총 직원 수</span>
+                            <span class="stat-value" id="stat-total-emp">0명</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">예비군 대상자</span>
+                            <span class="stat-value text-blue" id="stat-reserve-count">0명</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">민방위 대상자</span>
+                            <span class="stat-value text-purple" id="stat-civil-count">0명</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">훈련 제외자</span>
+                            <span class="stat-value text-muted" id="stat-exclude-count">0명</span>
+                        </div>
+                    </div>
+                    <!-- Stats Lock Overlay -->
+                    <div class="stats-lock-overlay" id="stats-lock-overlay">
+                        <i class="fa-solid fa-lock stats-lock-icon"></i>
+                        <p>관리자 전용 정보</p>
+                        <span>통계 비활성화</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Navigation FAQs -->
+            <div class="sidebar-section">
+                <h3><i class="fa-solid fa-list-check"></i> 자주 묻는 질문</h3>
+                <ul class="faq-nav" id="faq-nav-list">
+                    <li class="faq-nav-item" data-query="예비군 연차별 시간"><i class="fa-regular fa-circle-question"></i> 예비군 연차별 시간은?</li>
+                    <li class="faq-nav-item" data-query="민방위 교육 시간"><i class="fa-regular fa-circle-question"></i> 민방위 연차별 교육은?</li>
+                    <li class="faq-nav-item" data-query="공가 신청 규정"><i class="fa-regular fa-circle-question"></i> 훈련 시 유급휴가(공가)?</li>
+                    <li class="faq-nav-item" data-query="증빙서류 제출 방법"><i class="fa-regular fa-circle-question"></i> 필요한 증빙 서류는?</li>
+                    <li class="faq-nav-item" data-query="담당자"><i class="fa-regular fa-circle-question"></i> 예비군/민방위 담당자 누구?</li>
+                </ul>
+            </div>
+
+            <div class="sidebar-footer">
+                <p>Gemini 3.5 AI Assistant</p>
+                <span>v1.0.0</span>
+            </div>
+        </aside>
+
+        <!-- Chat Area Section -->
+        <main class="chat-area">
+            <header class="chat-header">
+                <div class="chat-title-info">
+                    <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="bot-info">
+                        <h3>예비군/민방위 훈련 안내 가이드봇</h3>
+                        <p><span class="online-badge">●</span> 실시간 도우미 | 대원현황.xlsx 파일 데이터 조회 가능</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <span class="user-badge" id="header-user-badge" style="display:none;"></span>
+                    <button class="header-btn" id="btn-logout" title="로그아웃" style="display:none;"><i class="fa-solid fa-right-from-bracket"></i> 로그아웃</button>
+                    <button class="header-btn" id="btn-reset-chat" title="대화 초기화"><i class="fa-solid fa-arrow-rotate-left"></i> 초기화</button>
+                </div>
+            </header>
+
+            <!-- Chat messages board -->
+            <section class="messages-container" id="chat-messages">
+                <!-- Message items will be added here via JS -->
+            </section>
+
+            <!-- Recommended tag chips -->
+            <div class="quick-options" id="quick-options-container">
+                <!-- Dynamic Quick Option Buttons -->
+            </div>
+
+            <!-- Chat input area -->
+            <footer class="input-area">
+                <div class="input-wrapper">
+                    <i class="fa-solid fa-keyboard keyboard-icon"></i>
+                    <input type="text" id="chat-input" placeholder="이름(예: 장지훈) 또는 사번을 입력해 내 정보를 확인하거나 질문을 입력하세요..." autocomplete="off">
+                    <button class="send-btn" id="btn-send" title="전송">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </footer>
+        </main>
+
+        <!-- Admin Dashboard Section -->
+        <main class="admin-dashboard hidden" id="admin-dashboard">
+            <header class="dashboard-header">
+                <div class="dashboard-title-info">
+                    <div class="dashboard-icon-badge"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="dashboard-info">
+                        <h3>예비군/민방위 훈련 현황 분석</h3>
+                        <p><span class="online-badge">●</span> 관리자 모드 | 전체 인원 및 훈련 통계 대시보드</p>
+                    </div>
+                </div>
+                <!-- Admin Sub-tabs -->
+                <div class="dashboard-tabs">
+                    <button class="dash-tab active" data-tab="all">
+                        <i class="fa-solid fa-gauge-high"></i> 종합 대시보드
+                    </button>
+                    <button class="dash-tab" data-tab="reserve">
+                        <i class="fa-solid fa-person-military-pointing"></i> 예비군 관리
+                    </button>
+                    <button class="dash-tab" data-tab="civil">
+                        <i class="fa-solid fa-person-military-rifle"></i> 민방위 관리
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Scroll Area -->
+            <div class="dashboard-content">
+                <!-- Summary Cards Row -->
+                <section class="summary-cards-row">
+                    <div class="summary-card card-total">
+                        <div class="card-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="card-stats">
+                            <span class="card-label">총 인원</span>
+                            <h4 id="dash-total-emp">0명</h4>
+                        </div>
+                    </div>
+                    <div class="summary-card card-reserve">
+                        <div class="card-icon"><i class="fa-solid fa-person-military-pointing"></i></div>
+                        <div class="card-stats">
+                            <span class="card-label">예비군 대상</span>
+                            <h4 id="dash-reserve-count">0명</h4>
+                        </div>
+                    </div>
+                    <div class="summary-card card-civil">
+                        <div class="card-icon"><i class="fa-solid fa-person-military-rifle"></i></div>
+                        <div class="card-stats">
+                            <span class="card-label">민방위 대상</span>
+                            <h4 id="dash-civil-count">0명</h4>
+                        </div>
+                    </div>
+                    <div class="summary-card card-exclude">
+                        <div class="card-icon"><i class="fa-solid fa-user-xmark"></i></div>
+                        <div class="card-stats">
+                            <span class="card-label">훈련 제외자</span>
+                            <h4 id="dash-exclude-count">0명</h4>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visualization Charts Row -->
+                <section class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4><i class="fa-solid fa-chart-pie"></i> 훈련 대상 구분 분포</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-distribution"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h4><i class="fa-solid fa-chart-bar"></i> 연차별 대원 분포</h4>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-years"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- AI Statistics & Roster Analyzer Section -->
+                <section class="admin-ai-section">
+                    <div class="ai-section-header">
+                        <h4><i class="fa-solid fa-wand-magic-sparkles"></i> AI 통계/명부 분석기</h4>
+                        <p>자연어로 명단 추출이나 통계(예: "온양 사업장 예비군 몇 명?", "재무관리팀 민방위 명단 보여줘")를 물어보세요. 즉석에서 집계 카드를 만들고 결과를 시각화합니다.</p>
+                    </div>
+                    <div class="ai-query-wrapper">
+                        <div class="ai-input-container">
+                            <i class="fa-solid fa-comment-dots ai-input-icon"></i>
+                            <input type="text" id="admin-ai-input" placeholder="질문을 여기에 입력하세요 (예: 이메일 미등록 사원 목록, 천안 예비군 수)..." autocomplete="off">
+                        </div>
+                        <button class="ai-query-btn" id="btn-admin-ai-query">
+                            <i class="fa-solid fa-bolt"></i> 분석 실행
+                        </button>
+                    </div>
+                    <div class="ai-result-panel hidden" id="admin-ai-result-panel">
+                        <!-- AI analysis result will be rendered here dynamically -->
+                    </div>
+                </section>
+
+                <!-- Roster Data Table Section -->
+                <section class="roster-section">
+                    <div class="roster-header">
+                        <div class="roster-title">
+                            <h4><i class="fa-solid fa-table-list"></i> 전체 임직원 명부</h4>
+                            <span>(대원현황.xlsx 연동 데이터)</span>
+                        </div>
+                        <div class="roster-actions">
+                            <div class="roster-filters">
+                                <button class="filter-btn active" data-filter="all">전체</button>
+                                <button class="filter-btn" data-filter="reserve">예비군</button>
+                                <button class="filter-btn" data-filter="civil">민방위</button>
+                                <button class="filter-btn" data-filter="exclude">제외자</button>
+                            </div>
+                            <div class="table-search-wrapper">
+                                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                                <input type="text" id="table-search-input" placeholder="이름 또는 사번 검색...">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="roster-table">
+                            <thead>
+                                <tr>
+                                    <th>사번</th>
+                                    <th>이름</th>
+                                    <th>소속 부서 (사업장)</th>
+                                    <th>연락처</th>
+                                    <th>대상구분</th>
+                                    <th>훈련유형</th>
+                                    <th>비고</th>
+                                </tr>
+                            </thead>
+                            <tbody id="roster-table-tbody">
+                                <!-- Data rows rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Login Gate Overlay -->
+    <div class="login-gate" id="login-gate">
+        <div class="login-box">
+            <div class="login-logo">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h2>예비군/민방위 훈련 안내</h2>
+                <p>Reserve Force & Civil Defense FAQ</p>
+            </div>
+            
+            <div class="login-tabs">
+                <button class="login-tab active" id="tab-user">사용자 로그인</button>
+                <button class="login-tab" id="tab-admin">관리자 로그인</button>
+            </div>
+            
+            <!-- User Login Form -->
+            <div class="login-form active" id="form-user">
+                <p class="login-hint">등록된 이름과 사번을 입력하여 로그인해 주세요.</p>
+                <div class="form-group">
+                    <label for="login-user-name">이름</label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="login-user-name" placeholder="예: 장지훈" autocomplete="off">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="login-user-id">사번</label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-solid fa-id-card"></i>
+                        <input type="text" id="login-user-id" placeholder="예: 20252612" autocomplete="off">
+                    </div>
+                </div>
+                <div id="user-login-error" class="login-error hidden"></div>
+                <button class="login-btn" id="btn-login-user">조회 및 로그인</button>
+            </div>
+            
+            <!-- Admin Login Form -->
+            <div class="login-form" id="form-admin">
+                <p class="login-hint">관리자 비밀번호를 입력해 주세요.</p>
+                <div class="form-group">
+                    <label for="login-admin-pw">비밀번호</label>
+                    <div class="form-input-wrapper">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="login-admin-pw" placeholder="비밀번호 입력" autocomplete="off">
+                    </div>
+                </div>
+                <div id="admin-login-error" class="login-error hidden"></div>
+                <button class="login-btn" id="btn-login-admin">관리자 로그인</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
